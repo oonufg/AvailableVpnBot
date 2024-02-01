@@ -6,8 +6,6 @@ import (
 )
 
 func main() {
-	err := domain.DownloadFile("https://ipspeed.info/ovpn/219.100.37.83_udp_1195.ovpn", "./ovpn/test.ovpn")
-	if err != nil {
-		fmt.Println(err)
-	}
+	s := domain.GetCountryByIp("58.239.20.112")
+	fmt.Println(s)
 }

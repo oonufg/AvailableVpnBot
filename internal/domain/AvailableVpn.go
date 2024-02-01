@@ -4,13 +4,32 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"os"
+	"sync"
 
 	_ "github.com/gocolly/colly/v2"
 )
 
-func DownloadFile(urlFrom, fileTo string) error {
+func DownloadAllOvpnFiles() {
+	urls, err := GetDownloadUrlsFromSource()
+	wg := new(sync.WaitGroup)
+	wg.Add(len(urls))
+
+	if err != nil {
+		log.Println("Failed to pull download urls")
+	}
+	for _, val := range urls {
+		go DownloadFile(wg, fmt.Sprintf("https://ipspeed.info/%s", val[1:]), val[1:])
+	}
+
+	wg.Wait()
+	fmt.Println("Downloaded!")
+
+}
+
+func DownloadFile(wg *sync.WaitGroup, urlFrom, fileTo string) error {
 	_, err := os.Stat(fileTo)
 	var file *os.File
 	if os.IsNotExist(err) {
@@ -22,10 +41,12 @@ func DownloadFile(urlFrom, fileTo string) error {
 	if resp.StatusCode != 200 {
 		return errors.New("Failed to download file")
 	}
-	w, _ := io.Copy(file, resp.Body)
-	fmt.Println(w)
-	defer file.Close()
-	defer resp.Body.Close()
+	io.Copy(file, resp.Body)
 
+	defer func() {
+		file.Close()
+		resp.Body.Close()
+		wg.Done()
+	}()
 	return nil
 }
