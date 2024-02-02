@@ -8,8 +8,6 @@ import (
 	"net/http"
 	"os"
 	"sync"
-
-	_ "github.com/gocolly/colly/v2"
 )
 
 func DownloadAllOvpnFiles() {

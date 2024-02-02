@@ -6,6 +6,9 @@ import (
 )
 
 func main() {
-	s := domain.GetCountryByIp("58.239.20.112")
-	fmt.Println(s)
+	o := domain.ParseAllOvpnInDir("./ovpn")
+	for _, v := range o {
+		fmt.Println(v)
+	}
+	fmt.Println("Выполнено")
 }
