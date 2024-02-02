@@ -10,7 +10,18 @@ import (
 	"sync"
 )
 
+type OvpnRepo struct {
+	ovpns map[string]map[string][]*OvpnFile
+}
+
+func (rep *OvpnRepo) getOvpnsByParam(country, proto string) []*OvpnFile {
+	res := make([]*OvpnFile, 0)
+	copy(res, rep.ovpns[country][proto])
+	return res
+}
+
 func DownloadAllOvpnFiles() {
+	log.Println("Start downloading ovpn files...")
 	urls, err := GetDownloadUrlsFromSource()
 	wg := new(sync.WaitGroup)
 	wg.Add(len(urls))
@@ -19,15 +30,14 @@ func DownloadAllOvpnFiles() {
 		log.Println("Failed to pull download urls")
 	}
 	for _, val := range urls {
-		go DownloadFile(wg, fmt.Sprintf("https://ipspeed.info/%s", val[1:]), val[1:])
+		go downloadFile(wg, fmt.Sprintf("https://ipspeed.info/%s", val[1:]), val[1:])
 	}
 
 	wg.Wait()
-	fmt.Println("Downloaded!")
-
+	log.Println("All ovpn downloaded...")
 }
 
-func DownloadFile(wg *sync.WaitGroup, urlFrom, fileTo string) error {
+func downloadFile(wg *sync.WaitGroup, urlFrom, fileTo string) error {
 	_, err := os.Stat(fileTo)
 	var file *os.File
 	if os.IsNotExist(err) {
@@ -47,4 +57,9 @@ func DownloadFile(wg *sync.WaitGroup, urlFrom, fileTo string) error {
 		wg.Done()
 	}()
 	return nil
+}
+
+func Ping(ipAddres string) bool { //TODO
+	isHostAlive := true
+	return isHostAlive
 }
