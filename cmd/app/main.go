@@ -8,7 +8,7 @@ import (
 
 func main() {
 	ctx := context.Background()
-	rep := domain.CreateOvpnRepository()
-	bot := bot.CreateBot("", rep)
-	bot.Start(ctx)
+	repo := domain.CreateOvpnRepository()
+	b := bot.CreateBot("TOKEN", repo)
+	b.Start(ctx)
 }

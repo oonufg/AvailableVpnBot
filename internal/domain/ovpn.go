@@ -61,12 +61,12 @@ func (rep *OvpnRepo) load() {
 func (rep *OvpnRepo) GetOvpnsByParam(country, proto string) []*OvpnFile {
 	res := make([]*OvpnFile, 0)
 	copy(res, rep.ovpns[country][proto])
-	return res
+	return rep.ovpns[country][proto]
 }
 
 func (rep *OvpnRepo) GetAvailableCountries() []string {
 	allCountries := make([]string, 0)
-	for key, _ := range rep.ovpns {
+	for key := range rep.ovpns {
 		allCountries = append(allCountries, key)
 	}
 
@@ -140,7 +140,7 @@ func ParseOvpnFile(path string) *OvpnFile {
 		}
 	}
 	return &OvpnFile{
-		fileName: strings.Split(path, "/")[1],
+		fileName: strings.Split(path, "/")[2],
 		country:  GetCountryByIp(parsedFile["remote"]),
 		protocol: parsedFile["proto"],
 	}

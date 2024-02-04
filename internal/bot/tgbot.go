@@ -18,7 +18,7 @@ type TgBot struct {
 }
 
 type EndPoints interface {
-	GetVpnsList(ctx context.Context, upd *models.Update) *bot.SendMessageParams
+	GetVpnsList(ctx context.Context, upd *models.Update) (*bot.SendMessageParams, error)
 	GetAvailableCountries(ctx context.Context, upd *models.Update) *bot.SendMessageParams
 }
 
@@ -26,7 +26,6 @@ type TgAPI interface {
 	Start()
 	HandleUpdate()
 	SendFiles()
-	sendFile()
 }
 
 func CreateBot(apiKey string, repo *domain.OvpnRepo) *TgBot {
@@ -52,13 +51,30 @@ func (tgBot *TgBot) HandleUpdate(ctx context.Context, b *bot.Bot, update *models
 		if len(parsedString) != 3 {
 			b.SendMessage(ctx, &bot.SendMessageParams{
 				ChatID: update.Message.Chat.ID,
-				Text:   "Комманда введена не верно",
+				Text:   "Комманда введена не верно \nПример /VpnList Russia tcp",
 			})
 		}
+
+		vList, err := tgBot.GetVpnsList(ctx, update)
+
+		if err != nil {
+			b.SendMessage(ctx, &bot.SendMessageParams{
+				ChatID: update.Message.Chat.ID,
+				Text:   "Комманда введена не верно \nПример /VpnList Russia tcp",
+			})
+		}
+		b.SendMediaGroup(ctx, &bot.SendMediaGroupParams{
+			ChatID: update.Message.Chat.ID,
+			Media:  vList,
+		})
+
 	case "/AvailableCountry":
 		b.SendMessage(ctx, tgBot.GetAvailableCountries(ctx, update))
 
 	default:
-
+		b.SendMessage(ctx, &bot.SendMessageParams{
+			ChatID: update.Message.Chat.ID,
+			Text:   "Команда не распознана",
+		})
 	}
 }
