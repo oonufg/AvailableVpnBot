@@ -1,14 +1,14 @@
 package main
 
 import (
-	cfg "AvailableVpn/config"
+	"AvailableVpn/internal/bot"
 	"AvailableVpn/internal/domain"
-	"fmt"
+	"context"
 )
 
 func main() {
-	c := cfg.LoadConfig()
-	fmt.Println(c)
-	r := domain.Ping("126.0.0.1")
-	fmt.Println(r)
+	ctx := context.Background()
+	rep := domain.CreateOvpnRepository()
+	bot := bot.CreateBot("", rep)
+	bot.Start(ctx)
 }
