@@ -3,11 +3,18 @@ package bot
 import (
 	"AvailableVpn/internal/domain"
 	"context"
-	"fmt"
 	"strings"
 
 	"github.com/go-telegram/bot"
 	"github.com/go-telegram/bot/models"
+)
+
+const (
+	HELP = `Доступные команды:
+	/AvailableCountry - Все доступные страны
+	/VpnList <country> <protocol> - Получить соответстующие ovpn файлы
+	/AllAvailableVpnFiles - Получить все ovpn файлы
+	`
 )
 
 type TgBot struct {
@@ -48,6 +55,11 @@ func (tgBot *TgBot) HandleUpdate(ctx context.Context, b *bot.Bot, update *models
 	parsedString := strings.Split(command, " ")
 
 	switch parsedString[0] {
+	case "/help":
+		b.SendMessage(ctx, &bot.SendMessageParams{
+			ChatID: update.Message.Chat.ID,
+			Text:   HELP,
+		})
 	case "/VpnList":
 		if len(parsedString) != 3 {
 			b.SendMessage(ctx, &bot.SendMessageParams{
@@ -62,15 +74,18 @@ func (tgBot *TgBot) HandleUpdate(ctx context.Context, b *bot.Bot, update *models
 		if err != nil {
 			b.SendMessage(ctx, &bot.SendMessageParams{
 				ChatID: update.Message.Chat.ID,
-				Text:   "Комманда введена не верно \nПример /VpnList Russia tcp",
+				Text: `Комманда введена не верно: Пример /VpnList Russia tcp
+				Либо нет такой страны или протокола`,
 			})
 			return
 		}
-		fmt.Println(vList)
 		b.SendMediaGroup(ctx, &bot.SendMediaGroupParams{
 			ChatID: update.Message.Chat.ID,
 			Media:  vList,
 		})
+
+	case "/AllAvailableVpnFiles":
+		return
 
 	case "/AvailableCountry":
 		b.SendMessage(ctx, tgBot.GetAvailableCountries(ctx, update))
@@ -78,7 +93,7 @@ func (tgBot *TgBot) HandleUpdate(ctx context.Context, b *bot.Bot, update *models
 	default:
 		b.SendMessage(ctx, &bot.SendMessageParams{
 			ChatID: update.Message.Chat.ID,
-			Text:   "Команда не распознана",
+			Text:   "Команда не распознана: Попробуйте /help",
 		})
 		return
 	}

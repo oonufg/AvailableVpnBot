@@ -3,6 +3,7 @@ package domain
 import (
 	utils "AvailableVpn/internal"
 	"bufio"
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -61,10 +62,19 @@ func (rep *OvpnRepo) load() {
 	rep.ovpns = mmap
 }
 
-func (rep *OvpnRepo) GetOvpnsByParam(country, proto string) []*OvpnFile {
+func (rep *OvpnRepo) GetOvpnsByParam(country, proto string) ([]*OvpnFile, error) {
+
+	if _, ok := rep.ovpns[country]; !ok {
+		return nil, errors.New("No such country")
+	}
+
+	if _, ok := rep.ovpns[country][proto]; !ok {
+		return nil, errors.New(fmt.Sprintf("No such protocol in %s", country))
+	}
+
 	res := make([]*OvpnFile, 0)
 	copy(res, rep.ovpns[country][proto])
-	return rep.ovpns[country][proto]
+	return rep.ovpns[country][proto], nil
 }
 
 func (rep *OvpnRepo) GetAvailableCountries() []string {

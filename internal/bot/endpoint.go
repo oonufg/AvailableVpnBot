@@ -15,8 +15,14 @@ import (
 // /VpnList country protocol
 func (tgb *TgBot) GetVpnsList(ctx context.Context, upd *models.Update) ([]models.InputMedia, error) {
 	parsedQuery := strings.Split(upd.Message.Text, " ")
-	ovpns := tgb.ovpnRepository.GetOvpnsByParam(parsedQuery[1], parsedQuery[2])
-	fmt.Println(ovpns)
+	country := parsedQuery[1]
+	protocol := parsedQuery[2]
+
+	ovpns, err := tgb.ovpnRepository.GetOvpnsByParam(country, protocol)
+	if err != nil {
+		return nil, errors.ErrUnsupported
+	}
+
 	ovpnsList := make([]models.InputMedia, 0)
 	for _, val := range ovpns {
 
