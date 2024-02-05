@@ -19,6 +19,7 @@ type OvpnFile struct {
 	fileName string
 	country  string
 	protocol string
+	ip       string
 }
 
 func (ovpn *OvpnFile) GetFilename() string {
@@ -53,7 +54,9 @@ func (rep *OvpnRepo) load() {
 		if _, ok := mmap[val.protocol]; !ok {
 			mmap[val.country][val.protocol] = make([]*OvpnFile, 0)
 		}
-		mmap[val.country][val.protocol] = append(mmap[val.country][val.protocol], val)
+		if utils.Ping(val.ip) {
+			mmap[val.country][val.protocol] = append(mmap[val.country][val.protocol], val)
+		}
 	}
 	rep.ovpns = mmap
 }
@@ -143,5 +146,6 @@ func ParseOvpnFile(path string) *OvpnFile {
 		fileName: strings.Split(path, "/")[2],
 		country:  GetCountryByIp(parsedFile["remote"]),
 		protocol: parsedFile["proto"],
+		ip:       parsedFile["remote"],
 	}
 }

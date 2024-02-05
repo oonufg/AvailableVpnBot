@@ -16,7 +16,7 @@ import (
 func (tgb *TgBot) GetVpnsList(ctx context.Context, upd *models.Update) ([]models.InputMedia, error) {
 	parsedQuery := strings.Split(upd.Message.Text, " ")
 	ovpns := tgb.ovpnRepository.GetOvpnsByParam(parsedQuery[1], parsedQuery[2])
-
+	fmt.Println(ovpns)
 	ovpnsList := make([]models.InputMedia, 0)
 	for _, val := range ovpns {
 

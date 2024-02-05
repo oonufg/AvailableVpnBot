@@ -3,6 +3,7 @@ package bot
 import (
 	"AvailableVpn/internal/domain"
 	"context"
+	"fmt"
 	"strings"
 
 	"github.com/go-telegram/bot"
@@ -53,6 +54,7 @@ func (tgBot *TgBot) HandleUpdate(ctx context.Context, b *bot.Bot, update *models
 				ChatID: update.Message.Chat.ID,
 				Text:   "Комманда введена не верно \nПример /VpnList Russia tcp",
 			})
+			return
 		}
 
 		vList, err := tgBot.GetVpnsList(ctx, update)
@@ -62,7 +64,9 @@ func (tgBot *TgBot) HandleUpdate(ctx context.Context, b *bot.Bot, update *models
 				ChatID: update.Message.Chat.ID,
 				Text:   "Комманда введена не верно \nПример /VpnList Russia tcp",
 			})
+			return
 		}
+		fmt.Println(vList)
 		b.SendMediaGroup(ctx, &bot.SendMediaGroupParams{
 			ChatID: update.Message.Chat.ID,
 			Media:  vList,
@@ -76,5 +80,6 @@ func (tgBot *TgBot) HandleUpdate(ctx context.Context, b *bot.Bot, update *models
 			ChatID: update.Message.Chat.ID,
 			Text:   "Команда не распознана",
 		})
+		return
 	}
 }
