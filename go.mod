@@ -3,6 +3,7 @@ module AvailableVpn
 go 1.21.6
 
 require (
+	github.com/go-telegram/bot v1.0.1
 	github.com/gocolly/colly/v2 v2.1.0
 	github.com/joho/godotenv v1.5.1
 	golang.org/x/net v0.0.0-20200602114024-627f9648deb9
@@ -14,8 +15,6 @@ require (
 	github.com/antchfx/htmlquery v1.2.3 // indirect
 	github.com/antchfx/xmlquery v1.2.4 // indirect
 	github.com/antchfx/xpath v1.1.8 // indirect
-	github.com/go-telegram/bot v1.0.1 // indirect
-	github.com/go-telegram/ui v0.2.0 // indirect
 	github.com/gobwas/glob v0.2.3 // indirect
 	github.com/golang/groupcache v0.0.0-20200121045136-8c9f03a8e57e // indirect
 	github.com/golang/protobuf v1.4.2 // indirect

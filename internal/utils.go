@@ -36,54 +36,6 @@ func DownloadFile(wg *sync.WaitGroup, urlFrom, fileTo string) error {
 	return nil
 }
 
-func PingSu(ipAddres string) bool { //TODO
-	var isHostAlive bool
-	packetCon, err := icmp.ListenPacket("ip4:icmp", "0.0.0.0")
-	if err != nil {
-		log.Println("Failed to listen icmp: ")
-		return false
-	}
-	defer packetCon.Close()
-
-	echoReq := &icmp.Message{
-		Type: ipv4.ICMPTypeEcho,
-		Code: 0,
-		Body: &icmp.Echo{
-			ID: os.Getpid() & 0xffff, Seq: 1,
-			Data: []byte("Are you alive?"),
-		},
-	}
-
-	encodedEchoReq, err := echoReq.Marshal(nil)
-	if err != nil {
-		log.Println("Falied to encode ICMP package...")
-	}
-
-	if _, err := packetCon.WriteTo(encodedEchoReq, &net.IPAddr{IP: net.ParseIP(ipAddres)}); err != nil {
-		log.Fatalf("WriteTo err, %s", err)
-	}
-
-	readBuffer := make([]byte, 1500)
-	n, _, err := packetCon.ReadFrom(readBuffer)
-	if err != nil {
-		log.Println(err)
-	}
-
-	readedMessage, err := icmp.ParseMessage(ipv4.ICMPTypeEchoReply.Protocol(), readBuffer[:n])
-	if err != nil {
-		log.Println(err)
-	}
-
-	switch readedMessage.Type {
-	case ipv4.ICMPTypeEchoReply:
-		isHostAlive = true
-	default:
-		isHostAlive = false
-	}
-
-	return isHostAlive
-}
-
 func Ping(target string) bool {
 	var isHostAlive bool
 	ip, err := net.ResolveIPAddr("ip4", target)
@@ -107,32 +59,27 @@ func Ping(target string) bool {
 	}
 	msg_bytes, err := msg.Marshal(nil)
 	if err != nil {
-		log.Println("Error on marshal..")
 		return false
 	}
 
 	// Write the message to the listening connection
 	if _, err := conn.WriteTo(msg_bytes, &net.UDPAddr{IP: net.ParseIP(ip.String())}); err != nil {
-		log.Println("Error on write")
 		return false
 	}
 
 	err = conn.SetReadDeadline(time.Now().Add(time.Second * 1))
 	if err != nil {
-		log.Println("Error on set deadline")
 		return false
 	}
 	reply := make([]byte, 1500)
 	n, _, err := conn.ReadFrom(reply)
 
 	if err != nil {
-		log.Println("Error on read from...")
 		return false
 	}
 	parsed_reply, err := icmp.ParseMessage(1, reply[:n])
 
 	if err != nil {
-		log.Println("Error on parse reply")
 		return false
 	}
 
